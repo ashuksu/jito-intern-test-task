@@ -179,6 +179,12 @@ function readStartTag(htmlText, startIndex) {
         index
     );
 
+    let finalIndex = nextIndex;
+
+    if (htmlText[finalIndex] === ">") {
+        finalIndex++;
+    }
+
     return {
         token: {
             type: "startTag",
@@ -186,7 +192,7 @@ function readStartTag(htmlText, startIndex) {
             attributes,
             isSelfClosing: isSelfClosing || VOID_ELEMENTS.has(tagName.toLowerCase()),
         },
-        nextIndex: nextIndex + 1,
+        nextIndex: finalIndex,
     };
 }
 
@@ -204,15 +210,28 @@ function readAttributes(htmlText, startIndex) {
             break;
         }
 
-        if (htmlText[index] === "/" && htmlText[index + 1] === ">") {
-            isSelfClosing = true;
-            index++;
-            break;
-        }
-
         if (htmlText[index] === "/") {
+            let testIndex = index;
+
+            while (
+                testIndex < htmlText.length &&
+                (htmlText[testIndex] === "/" || /\s/.test(htmlText[testIndex]))
+                ) {
+                testIndex++;
+            }
+
+            if (htmlText[testIndex] === ">") {
+                isSelfClosing = true;
+                index = testIndex;
+                break;
+            }
+
             index++;
             continue;
+        }
+
+        if (htmlText[index] === "<") {
+            break;
         }
 
         const nameStart = index;
@@ -225,6 +244,11 @@ function readAttributes(htmlText, startIndex) {
         }
 
         const name = htmlText.slice(nameStart, index);
+
+        if (!name) {
+            index++;
+            continue;
+        }
 
         while (index < htmlText.length && /\s/.test(htmlText[index])) {
             index++;
@@ -264,7 +288,8 @@ function readAttributes(htmlText, startIndex) {
 
             while (
                 index < htmlText.length &&
-                !/[\s>]/.test(htmlText[index])
+                !/[\s>]/.test(htmlText[index]) &&
+                htmlText[index] !== "<"
                 ) {
                 index++;
             }
