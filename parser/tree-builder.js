@@ -35,13 +35,17 @@ export function buildTree(tokens) {
                 stack.push(elementNode);
             }
         } else if (token.type === "endTag") {
-            const current = stack[stack.length - 1];
+            let matchIndex = -1;
 
-            if (
-                stack.length > 1 &&
-                current.tagName === token.tagName
-            ) {
-                stack.pop();
+            for (let i = stack.length - 1; i > 0; i--) {
+                if (stack[i].tagName === token.tagName) {
+                    matchIndex = i;
+                    break;
+                }
+            }
+
+            if (matchIndex !== -1) {
+                stack.length = matchIndex;
             } else {
                 appendChild(stack, {
                     type: "text",
