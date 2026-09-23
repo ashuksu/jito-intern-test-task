@@ -7,12 +7,21 @@ const VOID_ELEMENTS = new Set([
     "hr",
     "source",
     "base",
-    // "col",
-    // "track",
-    // "wbr",
-    // "area",
-    // "embed",
-    // "param",
+    "col",
+    "track",
+    "wbr",
+    "area",
+    "embed",
+    "param",
+]);
+
+const RAWTEXT_ELEMENTS = new Set([
+    "style",
+    "script",
+    "xmp",
+    "iframe",
+    "noembed",
+    "noframes",
 ]);
 
 export function tokenize(htmlText) {
@@ -67,8 +76,7 @@ export function tokenize(htmlText) {
 
         if (
             tagResult.token.type === "startTag" &&
-            (tagResult.token.tagName === "script" ||
-                tagResult.token.tagName === "style") &&
+            RAWTEXT_ELEMENTS.has(tagResult.token.tagName.toLowerCase()) &&
             !tagResult.token.isSelfClosing
         ) {
             const rawTextResult = readRawText(
@@ -103,7 +111,6 @@ function readText(htmlText, startIndex) {
         nextIndex: index,
     };
 }
-
 
 function readClosingTag(htmlText, startIndex) {
     if (htmlText[startIndex] !== "<" || htmlText[startIndex + 1] !== "/") {
