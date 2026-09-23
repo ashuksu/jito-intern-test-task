@@ -87,7 +87,8 @@ function readTag(htmlText, startIndex) {
 
     if (
         htmlText[index] !== ">" &&
-        !/\s/.test(htmlText[index])
+        !/\s/.test(htmlText[index]) &&
+        htmlText[index] !== "/"
     ) {
         return {
             token: {
@@ -98,21 +99,10 @@ function readTag(htmlText, startIndex) {
         };
     }
 
-    while (index < htmlText.length && htmlText[index] !== ">") {
-        index++;
-    }
-
-    if (index === htmlText.length) {
-        return {
-            token: {
-                type: "text",
-                value: htmlText.slice(startIndex),
-            },
-            nextIndex: index,
-        };
-    }
-
     if (isClosing) {
+        while (index < htmlText.length && htmlText[index] !== ">") {
+            index++;
+        }
         return {
             token: {
                 type: "endTag",
@@ -122,15 +112,9 @@ function readTag(htmlText, startIndex) {
         };
     }
 
-    const content = htmlText.slice(startIndex + 1, index).trim();
-    const isSelfClosing = content.endsWith("/");
-
-    const attributesEnd = isSelfClosing ? index - 1 : index;
-
-    const attributes = readAttributes(
+    const {attributes, isSelfClosing, nextIndex} = readAttributes(
         htmlText,
-        nameStart + tagName.length,
-        attributesEnd
+        index
     );
 
     return {
@@ -140,35 +124,42 @@ function readTag(htmlText, startIndex) {
             attributes,
             isSelfClosing: isSelfClosing || VOID_ELEMENTS.has(tagName),
         },
-        nextIndex: index + 1,
+        nextIndex: nextIndex + 1,
     };
 }
 
-function readAttributes(htmlText, startIndex, endIndex) {
+function readAttributes(htmlText, startIndex) {
     const attributes = [];
     let index = startIndex;
+    let isSelfClosing = false;
 
-    while (index < endIndex) {
-        while (index < endIndex && /\s/.test(htmlText[index])) {
+    while (index < htmlText.length) {
+        while (index < htmlText.length && /\s/.test(htmlText[index])) {
             index++;
         }
 
-        if (index >= endIndex || htmlText[index] === "/") {
+        if (index >= htmlText.length || htmlText[index] === ">") {
+            break;
+        }
+
+        if (htmlText[index] === "/" && htmlText[index + 1] === ">") {
+            isSelfClosing = true;
+            index++;
             break;
         }
 
         const nameStart = index;
 
         while (
-            index < endIndex &&
-            !/[\s=>]/.test(htmlText[index])
+            index < htmlText.length &&
+            !/[\s=>/]/.test(htmlText[index])
             ) {
             index++;
         }
 
         const name = htmlText.slice(nameStart, index);
 
-        while (index < endIndex && /\s/.test(htmlText[index])) {
+        while (index < htmlText.length && /\s/.test(htmlText[index])) {
             index++;
         }
 
@@ -182,7 +173,7 @@ function readAttributes(htmlText, startIndex, endIndex) {
 
         index++;
 
-        while (index < endIndex && /\s/.test(htmlText[index])) {
+        while (index < htmlText.length && /\s/.test(htmlText[index])) {
             index++;
         }
 
@@ -192,20 +183,20 @@ function readAttributes(htmlText, startIndex, endIndex) {
             const quote = htmlText[index++];
             const valueStart = index;
 
-            while (index < endIndex && htmlText[index] !== quote) {
+            while (index < htmlText.length && htmlText[index] !== quote) {
                 index++;
             }
 
             value = htmlText.slice(valueStart, index);
 
-            if (index < endIndex) {
+            if (index < htmlText.length) {
                 index++;
             }
         } else {
             const valueStart = index;
 
             while (
-                index < endIndex &&
+                index < htmlText.length &&
                 !/[\s>]/.test(htmlText[index])
                 ) {
                 index++;
@@ -220,5 +211,9 @@ function readAttributes(htmlText, startIndex, endIndex) {
         });
     }
 
-    return attributes;
+    return {
+        attributes,
+        isSelfClosing,
+        nextIndex: index,
+    };
 }
