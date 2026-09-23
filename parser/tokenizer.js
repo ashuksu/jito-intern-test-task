@@ -56,42 +56,73 @@ function readText(htmlText, startIndex) {
 function readTag(htmlText, startIndex) {
     let index = startIndex + 1;
 
+    const isClosing = htmlText[index] === "/";
+
+    if (isClosing) {
+        index++;
+    }
+
+    const nameStart = index;
+
+    if (!/[a-zA-Z]/.test(htmlText[index])) {
+        return {
+            token: {
+                type: "text",
+                value: "<",
+            },
+            nextIndex: startIndex + 1,
+        };
+    }
+
+    while (
+        index < htmlText.length &&
+        /[a-zA-Z0-9-]/.test(htmlText[index])
+        ) {
+        index++;
+    }
+
+    const tagName = htmlText.slice(nameStart, index).toLowerCase();
+
+    if (
+        htmlText[index] !== ">" &&
+        !/\s/.test(htmlText[index])
+    ) {
+        return {
+            token: {
+                type: "text",
+                value: "<",
+            },
+            nextIndex: startIndex + 1,
+        };
+    }
+
     while (index < htmlText.length && htmlText[index] !== ">") {
         index++;
     }
 
-    const actualEnd = index;
-
-    if (index < htmlText.length) {
-        index++;
-    }
-
-    const content = htmlText
-        .slice(startIndex + 1, actualEnd)
-        .trim();
-
-    if (content.startsWith("/")) {
+    if (index === htmlText.length) {
         return {
             token: {
-                type: "endTag",
-                tagName: content.slice(1).trim().toLowerCase(),
+                type: "text",
+                value: htmlText.slice(startIndex),
             },
             nextIndex: index,
         };
     }
 
+    const content = htmlText.slice(startIndex + 1, index).trim();
+
+    if (isClosing) {
+        return {
+            token: {
+                type: "endTag",
+                tagName,
+            },
+            nextIndex: index + 1,
+        };
+    }
+
     const isSelfClosing = content.endsWith("/");
-    const cleanContent = isSelfClosing
-        ? content.slice(0, -1).trim()
-        : content;
-
-    const spaceIndex = cleanContent.search(/\s/);
-
-    const tagName = (
-        spaceIndex === -1
-            ? cleanContent
-            : cleanContent.slice(0, spaceIndex)
-    ).toLowerCase();
 
     return {
         token: {
@@ -100,6 +131,6 @@ function readTag(htmlText, startIndex) {
             attributes: [],
             isSelfClosing: isSelfClosing || VOID_ELEMENTS.has(tagName),
         },
-        nextIndex: index,
+        nextIndex: index + 1,
     };
 }
