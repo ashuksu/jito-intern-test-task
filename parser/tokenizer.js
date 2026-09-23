@@ -302,8 +302,8 @@ function readDoctype(htmlText, startIndex) {
 }
 
 function readRawText(htmlText, startIndex, tagName) {
-    const lowerHtml = htmlText.toLowerCase();
-    const closingTag = `</${tagName}`;
+    const closingTag = `</${tagName}`.toLowerCase();
+    const tagLen = closingTag.length;
     let index = startIndex;
 
     let inQuote = null;
@@ -361,8 +361,11 @@ function readRawText(htmlText, startIndex, tagName) {
             continue;
         }
 
-        if (lowerHtml.startsWith(closingTag, index)) {
-            let testIndex = index + closingTag.length;
+        if (
+            char === "<" &&
+            htmlText.slice(index, index + tagLen).toLowerCase() === closingTag
+        ) {
+            let testIndex = index + tagLen;
 
             while (testIndex < htmlText.length && /\s/.test(htmlText[testIndex])) {
                 testIndex++;
