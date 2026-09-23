@@ -36,9 +36,10 @@ export function buildTree(tokens) {
             }
         } else if (token.type === "endTag") {
             let matchIndex = -1;
+            const lowerEndTag = token.tagName.toLowerCase();
 
             for (let i = stack.length - 1; i > 0; i--) {
-                if (stack[i].tagName === token.tagName) {
+                if (stack[i].tagName.toLowerCase() === lowerEndTag) {
                     matchIndex = i;
                     break;
                 }

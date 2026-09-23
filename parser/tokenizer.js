@@ -122,7 +122,7 @@ function readClosingTag(htmlText, startIndex) {
         index++;
     }
 
-    const tagName = htmlText.slice(nameStart, index).toLowerCase();
+    const tagName = htmlText.slice(nameStart, index);
 
     if (htmlText[index] !== ">" && !/\s/.test(htmlText[index])) {
         return null;
@@ -156,11 +156,12 @@ function readStartTag(htmlText, startIndex) {
     }
 
     const nameStart = index;
+
     while (index < htmlText.length && /[a-zA-Z0-9-]/.test(htmlText[index])) {
         index++;
     }
 
-    const tagName = htmlText.slice(nameStart, index).toLowerCase();
+    const tagName = htmlText.slice(nameStart, index);
 
     if (
         htmlText[index] !== ">" &&
@@ -183,7 +184,7 @@ function readStartTag(htmlText, startIndex) {
             type: "startTag",
             tagName,
             attributes,
-            isSelfClosing: isSelfClosing || VOID_ELEMENTS.has(tagName),
+            isSelfClosing: isSelfClosing || VOID_ELEMENTS.has(tagName.toLowerCase()),
         },
         nextIndex: nextIndex + 1,
     };
