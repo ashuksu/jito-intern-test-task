@@ -54,9 +54,21 @@ function readText(htmlText, startIndex) {
 }
 
 function readTag(htmlText, startIndex) {
-    const endIndex = htmlText.indexOf(">", startIndex);
-    const actualEnd = endIndex === -1 ? htmlText.length : endIndex;
-    const content = htmlText.slice(startIndex + 1, actualEnd).trim();
+    let index = startIndex + 1;
+
+    while (index < htmlText.length && htmlText[index] !== ">") {
+        index++;
+    }
+
+    const actualEnd = index;
+
+    if (index < htmlText.length) {
+        index++;
+    }
+
+    const content = htmlText
+        .slice(startIndex + 1, actualEnd)
+        .trim();
 
     if (content.startsWith("/")) {
         return {
@@ -64,22 +76,30 @@ function readTag(htmlText, startIndex) {
                 type: "endTag",
                 tagName: content.slice(1).trim().toLowerCase(),
             },
-            nextIndex: actualEnd + 1,
+            nextIndex: index,
         };
     }
 
     const isSelfClosing = content.endsWith("/");
-    const cleanContent = isSelfClosing ? content.slice(0, -1).trim() : content;
+    const cleanContent = isSelfClosing
+        ? content.slice(0, -1).trim()
+        : content;
+
     const spaceIndex = cleanContent.search(/\s/);
-    const tagName = (spaceIndex === -1 ? cleanContent : cleanContent.slice(0, spaceIndex)).toLowerCase();
+
+    const tagName = (
+        spaceIndex === -1
+            ? cleanContent
+            : cleanContent.slice(0, spaceIndex)
+    ).toLowerCase();
 
     return {
         token: {
             type: "startTag",
             tagName,
             attributes: [],
-            isSelfClosing: VOID_ELEMENTS.has(tagName)
+            isSelfClosing: isSelfClosing || VOID_ELEMENTS.has(tagName),
         },
-        nextIndex: actualEnd + 1,
+        nextIndex: index,
     };
 }
