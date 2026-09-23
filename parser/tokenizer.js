@@ -52,7 +52,16 @@ export function tokenize(htmlText) {
             }
         }
 
-        const tagResult = readTag(htmlText, index);
+        if (htmlText[index + 1] === "/") {
+            const closingResult = readClosingTag(htmlText, index);
+            if (closingResult) {
+                tokens.push(closingResult.token);
+                index = closingResult.nextIndex;
+                continue;
+            }
+        }
+
+        const tagResult = readStartTag(htmlText, index);
         tokens.push(tagResult.token);
         index = tagResult.nextIndex;
 
@@ -95,33 +104,59 @@ function readText(htmlText, startIndex) {
     };
 }
 
-function readTag(htmlText, startIndex) {
-    let index = startIndex + 1;
 
-    const isClosing = /^<\/[a-zA-Z][a-zA-Z0-9-]*(?:\s|>)/.test(
-        htmlText.slice(startIndex)
-    );
+function readClosingTag(htmlText, startIndex) {
+    if (htmlText[startIndex] !== "<" || htmlText[startIndex + 1] !== "/") {
+        return null;
+    }
 
-    if (isClosing) {
-        index++;
+    let index = startIndex + 2;
+
+    if (index >= htmlText.length || !/[a-zA-Z]/.test(htmlText[index])) {
+        return null;
     }
 
     const nameStart = index;
 
+    while (index < htmlText.length && /[a-zA-Z0-9-]/.test(htmlText[index])) {
+        index++;
+    }
+
+    const tagName = htmlText.slice(nameStart, index).toLowerCase();
+
+    if (htmlText[index] !== ">" && !/\s/.test(htmlText[index])) {
+        return null;
+    }
+
+    while (index < htmlText.length && /\s/.test(htmlText[index])) {
+        index++;
+    }
+
+    if (htmlText[index] !== ">") {
+        return null;
+    }
+
+    return {
+        token: {
+            type: "endTag",
+            tagName,
+        },
+        nextIndex: index + 1,
+    };
+}
+
+function readStartTag(htmlText, startIndex) {
+    let index = startIndex + 1;
+
     if (!/[a-zA-Z]/.test(htmlText[index])) {
         return {
-            token: {
-                type: "text",
-                value: "<",
-            },
+            token: {type: "text", value: "<"},
             nextIndex: startIndex + 1,
         };
     }
 
-    while (
-        index < htmlText.length &&
-        /[a-zA-Z0-9-]/.test(htmlText[index])
-        ) {
+    const nameStart = index;
+    while (index < htmlText.length && /[a-zA-Z0-9-]/.test(htmlText[index])) {
         index++;
     }
 
@@ -133,24 +168,8 @@ function readTag(htmlText, startIndex) {
         htmlText[index] !== "/"
     ) {
         return {
-            token: {
-                type: "text",
-                value: "<",
-            },
+            token: {type: "text", value: "<"},
             nextIndex: startIndex + 1,
-        };
-    }
-
-    if (isClosing) {
-        while (index < htmlText.length && htmlText[index] !== ">") {
-            index++;
-        }
-        return {
-            token: {
-                type: "endTag",
-                tagName,
-            },
-            nextIndex: index + 1,
         };
     }
 

@@ -35,8 +35,18 @@ export function buildTree(tokens) {
                 stack.push(elementNode);
             }
         } else if (token.type === "endTag") {
-            if (stack.length > 1) {
+            const current = stack[stack.length - 1];
+
+            if (
+                stack.length > 1 &&
+                current.tagName === token.tagName
+            ) {
                 stack.pop();
+            } else {
+                appendChild(stack, {
+                    type: "text",
+                    value: `</${token.tagName}>`,
+                });
             }
         }
     }
