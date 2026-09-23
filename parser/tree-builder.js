@@ -26,6 +26,11 @@ export function buildTree(tokens) {
                 type: "comment",
                 value: token.value,
             });
+        } else if (token.type === "processingInstruction") {
+            appendChild(stack, {
+                type: "processingInstruction",
+                value: token.value,
+            });
         } else if (token.type === "doctype") {
             appendChild(stack, {
                 type: "doctype",

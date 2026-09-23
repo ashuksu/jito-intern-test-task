@@ -61,6 +61,14 @@ export function tokenize(htmlText) {
             continue;
         }
 
+        if (htmlText[index + 1] === "?") {
+            const piResult = readProcessingInstruction(htmlText, index);
+
+            tokens.push(piResult.token);
+            index = piResult.nextIndex;
+            continue;
+        }
+
         if (htmlText.slice(index, index + 9).toLowerCase() === "<!doctype") {
             const nextChar = htmlText[index + 9];
 
@@ -379,6 +387,34 @@ function readComment(htmlText, startIndex) {
             value: htmlText.slice(contentStart, endIndex),
         },
         nextIndex: endIndex + 3,
+    };
+}
+
+/**
+ * Reads processing instructions / XML declarations up to `?>`.
+ * @param {string} htmlText
+ * @param {number} startIndex
+ * @returns {{ token: Object, nextIndex: number }}
+ */
+function readProcessingInstruction(htmlText, startIndex) {
+    const endIndex = htmlText.indexOf("?>", startIndex + 2);
+
+    if (endIndex === -1) {
+        return {
+            token: {
+                type: "processingInstruction",
+                value: htmlText.slice(startIndex + 2),
+            },
+            nextIndex: htmlText.length,
+        };
+    }
+
+    return {
+        token: {
+            type: "processingInstruction",
+            value: htmlText.slice(startIndex + 2, endIndex),
+        },
+        nextIndex: endIndex + 2,
     };
 }
 
