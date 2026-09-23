@@ -15,6 +15,7 @@ export function buildTree(tokens) {
             const elementNode = {
                 type: "element",
                 tagName: token.tagName,
+                attributes: token.attributes,
                 children: [],
             };
 

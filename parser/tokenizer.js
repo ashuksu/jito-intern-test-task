@@ -125,13 +125,100 @@ function readTag(htmlText, startIndex) {
     const content = htmlText.slice(startIndex + 1, index).trim();
     const isSelfClosing = content.endsWith("/");
 
+    const attributesEnd = isSelfClosing ? index - 1 : index;
+
+    const attributes = readAttributes(
+        htmlText,
+        nameStart + tagName.length,
+        attributesEnd
+    );
+
     return {
         token: {
             type: "startTag",
             tagName,
-            attributes: [],
+            attributes,
             isSelfClosing: isSelfClosing || VOID_ELEMENTS.has(tagName),
         },
         nextIndex: index + 1,
     };
+}
+
+function readAttributes(htmlText, startIndex, endIndex) {
+    const attributes = [];
+    let index = startIndex;
+
+    while (index < endIndex) {
+        while (index < endIndex && /\s/.test(htmlText[index])) {
+            index++;
+        }
+
+        if (index >= endIndex || htmlText[index] === "/") {
+            break;
+        }
+
+        const nameStart = index;
+
+        while (
+            index < endIndex &&
+            !/[\s=>]/.test(htmlText[index])
+            ) {
+            index++;
+        }
+
+        const name = htmlText.slice(nameStart, index);
+
+        while (index < endIndex && /\s/.test(htmlText[index])) {
+            index++;
+        }
+
+        if (htmlText[index] !== "=") {
+            attributes.push({
+                name,
+                value: null,
+            });
+            continue;
+        }
+
+        index++;
+
+        while (index < endIndex && /\s/.test(htmlText[index])) {
+            index++;
+        }
+
+        let value;
+
+        if (htmlText[index] === '"' || htmlText[index] === "'") {
+            const quote = htmlText[index++];
+            const valueStart = index;
+
+            while (index < endIndex && htmlText[index] !== quote) {
+                index++;
+            }
+
+            value = htmlText.slice(valueStart, index);
+
+            if (index < endIndex) {
+                index++;
+            }
+        } else {
+            const valueStart = index;
+
+            while (
+                index < endIndex &&
+                !/[\s>]/.test(htmlText[index])
+                ) {
+                index++;
+            }
+
+            value = htmlText.slice(valueStart, index);
+        }
+
+        attributes.push({
+            name,
+            value,
+        });
+    }
+
+    return attributes;
 }
