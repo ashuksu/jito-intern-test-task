@@ -32,6 +32,14 @@ export function tokenize(htmlText) {
             continue;
         }
 
+        if (htmlText.startsWith("<!--", index)) {
+            const commentResult = readComment(htmlText, index);
+
+            tokens.push(commentResult.token);
+            index = commentResult.nextIndex;
+            continue;
+        }
+
         const tagResult = readTag(htmlText, index);
         tokens.push(tagResult.token);
         index = tagResult.nextIndex;
@@ -215,5 +223,28 @@ function readAttributes(htmlText, startIndex) {
         attributes,
         isSelfClosing,
         nextIndex: index,
+    };
+}
+
+function readComment(htmlText, startIndex) {
+    const contentStart = startIndex + 4;
+    const endIndex = htmlText.indexOf("-->", contentStart);
+
+    if (endIndex === -1) {
+        return {
+            token: {
+                type: "comment",
+                value: htmlText.slice(contentStart),
+            },
+            nextIndex: htmlText.length,
+        };
+    }
+
+    return {
+        token: {
+            type: "comment",
+            value: htmlText.slice(contentStart, endIndex),
+        },
+        nextIndex: endIndex + 3,
     };
 }

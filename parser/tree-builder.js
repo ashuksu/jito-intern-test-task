@@ -11,6 +11,11 @@ export function buildTree(tokens) {
     for (const token of tokens) {
         if (token.type === "text") {
             appendChild(stack, token);
+        } else if (token.type === "comment") {
+            appendChild(stack, {
+                type: "comment",
+                value: token.value,
+            });
         } else if (token.type === "startTag") {
             const elementNode = {
                 type: "element",
