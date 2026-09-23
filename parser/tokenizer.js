@@ -56,7 +56,9 @@ function readText(htmlText, startIndex) {
 function readTag(htmlText, startIndex) {
     let index = startIndex + 1;
 
-    const isClosing = htmlText[index] === "/";
+    const isClosing = /^<\/[a-zA-Z][a-zA-Z0-9-]*(?:\s|>)/.test(
+        htmlText.slice(startIndex)
+    );
 
     if (isClosing) {
         index++;
@@ -110,8 +112,6 @@ function readTag(htmlText, startIndex) {
         };
     }
 
-    const content = htmlText.slice(startIndex + 1, index).trim();
-
     if (isClosing) {
         return {
             token: {
@@ -122,6 +122,7 @@ function readTag(htmlText, startIndex) {
         };
     }
 
+    const content = htmlText.slice(startIndex + 1, index).trim();
     const isSelfClosing = content.endsWith("/");
 
     return {
