@@ -16,6 +16,11 @@ export function buildTree(tokens) {
                 type: "comment",
                 value: token.value,
             });
+        } else if (token.type === "doctype") {
+            appendChild(stack, {
+                type: "doctype",
+                value: token.value,
+            });
         } else if (token.type === "startTag") {
             const elementNode = {
                 type: "element",

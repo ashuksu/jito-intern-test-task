@@ -40,6 +40,14 @@ export function tokenize(htmlText) {
             continue;
         }
 
+        if (htmlText.startsWith("<!DOCTYPE", index) || htmlText.startsWith("<!doctype", index)) {
+            const doctypeResult = readDoctype(htmlText, index);
+
+            tokens.push(doctypeResult.token);
+            index = doctypeResult.nextIndex;
+            continue;
+        }
+
         const tagResult = readTag(htmlText, index);
         tokens.push(tagResult.token);
         index = tagResult.nextIndex;
@@ -246,5 +254,23 @@ function readComment(htmlText, startIndex) {
             value: htmlText.slice(contentStart, endIndex),
         },
         nextIndex: endIndex + 3,
+    };
+}
+
+function readDoctype(htmlText, startIndex) {
+    const endIndex = htmlText.indexOf(">", startIndex);
+
+    if (endIndex === -1) {
+        return {
+            token: {
+                type: "doctype", value: htmlText.slice(startIndex + 2),
+            }, nextIndex: htmlText.length,
+        };
+    }
+
+    return {
+        token: {
+            type: "doctype", value: htmlText.slice(startIndex + 2, endIndex),
+        }, nextIndex: endIndex + 1,
     };
 }
