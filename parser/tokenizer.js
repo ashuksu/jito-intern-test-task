@@ -1,3 +1,9 @@
+/**
+ * @file HTML Tokenizer
+ * Converts raw HTML string into a stream of structured tokens.
+ */
+
+/** @type {Set<string>} HTML5 void elements that cannot contain child nodes or closing tags. */
 const VOID_ELEMENTS = new Set([
     "meta",
     "link",
@@ -15,6 +21,7 @@ const VOID_ELEMENTS = new Set([
     "param",
 ]);
 
+/** @type {Set<string>} Elements whose content is parsed as raw text instead of HTML markup. */
 const RAWTEXT_ELEMENTS = new Set([
     "style",
     "script",
@@ -24,6 +31,11 @@ const RAWTEXT_ELEMENTS = new Set([
     "noframes",
 ]);
 
+/**
+ * Tokenizes an HTML string into a flat token stream.
+ * @param {string} htmlText - Source HTML text.
+ * @returns {Array<Object>} List of parsed tokens.
+ */
 export function tokenize(htmlText) {
     const tokens = [];
     let index = 0;
@@ -99,6 +111,12 @@ export function tokenize(htmlText) {
     return tokens;
 }
 
+/**
+ * Reads literal text up to the next opening bracket '<'.
+ * @param {string} htmlText
+ * @param {number} startIndex
+ * @returns {{ value: string, nextIndex: number }}
+ */
 function readText(htmlText, startIndex) {
     let index = startIndex;
 
@@ -112,6 +130,12 @@ function readText(htmlText, startIndex) {
     };
 }
 
+/**
+ * Attempts to parse an end tag (`</tagName>`).
+ * @param {string} htmlText
+ * @param {number} startIndex
+ * @returns {{ token: Object, nextIndex: number } | null} Token payload and next offset, or null if syntax is invalid.
+ */
 function readClosingTag(htmlText, startIndex) {
     if (htmlText[startIndex] !== "<" || htmlText[startIndex + 1] !== "/") {
         return null;
@@ -152,6 +176,12 @@ function readClosingTag(htmlText, startIndex) {
     };
 }
 
+/**
+ * Parses a start tag (`<tagName ...>`), attributes, and determines self-closing status.
+ * @param {string} htmlText
+ * @param {number} startIndex
+ * @returns {{ token: Object, nextIndex: number }}
+ */
 function readStartTag(htmlText, startIndex) {
     let index = startIndex + 1;
 
@@ -203,6 +233,12 @@ function readStartTag(htmlText, startIndex) {
     };
 }
 
+/**
+ * Extracts key-value attribute pairs and detects self-closing slash markers.
+ * @param {string} htmlText
+ * @param {number} startIndex
+ * @returns {{ attributes: Array<Object>, isSelfClosing: boolean, nextIndex: number }}
+ */
 function readAttributes(htmlText, startIndex) {
     const attributes = [];
     let index = startIndex;
@@ -317,6 +353,12 @@ function readAttributes(htmlText, startIndex) {
     };
 }
 
+/**
+ * Reads comment content up to `-->`.
+ * @param {string} htmlText
+ * @param {number} startIndex
+ * @returns {{ token: Object, nextIndex: number }}
+ */
 function readComment(htmlText, startIndex) {
     const contentStart = startIndex + 4;
     const endIndex = htmlText.indexOf("-->", contentStart);
@@ -340,6 +382,12 @@ function readComment(htmlText, startIndex) {
     };
 }
 
+/**
+ * Reads DOCTYPE payload up to `>`.
+ * @param {string} htmlText
+ * @param {number} startIndex
+ * @returns {{ token: Object, nextIndex: number }}
+ */
 function readDoctype(htmlText, startIndex) {
     const endIndex = htmlText.indexOf(">", startIndex);
 
@@ -358,6 +406,14 @@ function readDoctype(htmlText, startIndex) {
     };
 }
 
+/**
+ * Reads content inside RAWTEXT elements (<style>, <script>, etc.) up to `</tagName>`,
+ * ignoring inner closing tags if they occur inside string literals or comments.
+ * @param {string} htmlText
+ * @param {number} startIndex
+ * @param {string} tagName
+ * @returns {{ value: string, nextIndex: number }}
+ */
 function readRawText(htmlText, startIndex, tagName) {
     const closingTag = `</${tagName}`.toLowerCase();
     const tagLen = closingTag.length;
