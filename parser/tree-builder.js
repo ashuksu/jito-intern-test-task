@@ -50,6 +50,10 @@ export function buildTree(tokens) {
             }
 
             if (matchIndex !== -1) {
+                for (let i = stack.length - 1; i > matchIndex; i--) {
+                    stack[i].isUnclosed = true;
+                }
+
                 stack.length = matchIndex;
             } else {
                 appendChild(stack, {
@@ -58,6 +62,10 @@ export function buildTree(tokens) {
                 });
             }
         }
+    }
+
+    for (let i = 1; i < stack.length; i++) {
+        stack[i].isUnclosed = true;
     }
 
     return root;
