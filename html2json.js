@@ -1,3 +1,9 @@
+import {parseHtml} from "./parser/index.js";
+
+window.convertHtml2JsonAndSet = convertHtml2JsonAndSet;
+window.showExample1 = showExample1;
+window.showExample2 = showExample2;
+
 function convertHtml2JsonAndSet() {
   const htmlTextAreaValue = document.getElementById("html").value;
   const jsonObj = html2json(htmlTextAreaValue);
@@ -10,10 +16,7 @@ function convertHtml2JsonAndSet() {
   You can rewrite it completely, just be sure it accepts htmlText as string and outputs json object.
 */
 function html2json(htmlText) {
-  return {
-    "Conversion results": "should be instead of this json obj",
-    "Just to show that it is dynamic value (input length)" : htmlText.length,
-  };
+  return parseHtml(htmlText);
 }
 
 function showExample1() {
