@@ -40,12 +40,16 @@ export function tokenize(htmlText) {
             continue;
         }
 
-        if (htmlText.startsWith("<!DOCTYPE", index) || htmlText.startsWith("<!doctype", index)) {
-            const doctypeResult = readDoctype(htmlText, index);
+        if (htmlText.slice(index, index + 9).toLowerCase() === "<!doctype") {
+            const nextChar = htmlText[index + 9];
 
-            tokens.push(doctypeResult.token);
-            index = doctypeResult.nextIndex;
-            continue;
+            if (!nextChar || /[\s>]/.test(nextChar)) {
+                const doctypeResult = readDoctype(htmlText, index);
+
+                tokens.push(doctypeResult.token);
+                index = doctypeResult.nextIndex;
+                continue;
+            }
         }
 
         const tagResult = readTag(htmlText, index);
