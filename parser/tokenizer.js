@@ -210,6 +210,11 @@ function readAttributes(htmlText, startIndex) {
             break;
         }
 
+        if (htmlText[index] === "/") {
+            index++;
+            continue;
+        }
+
         const nameStart = index;
 
         while (
