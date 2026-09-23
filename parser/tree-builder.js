@@ -11,6 +11,22 @@ export function buildTree(tokens) {
     for (const token of tokens) {
         if (token.type === "text") {
             appendChild(stack, token);
+        } else if (token.type === "startTag") {
+            const elementNode = {
+                type: "element",
+                tagName: token.tagName,
+                children: [],
+            };
+
+            appendChild(stack, elementNode);
+
+            if (!token.isSelfClosing) {
+                stack.push(elementNode);
+            }
+        } else if (token.type === "endTag") {
+            if (stack.length > 1) {
+                stack.pop();
+            }
         }
     }
 
