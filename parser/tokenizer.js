@@ -456,7 +456,7 @@ function readRawText(htmlText, startIndex, tagName) {
 
         const char = htmlText[index];
 
-        if (char === '"' || char === "'" || (tagName === "script" && char === "`")) {
+        if (char === '"' || char === "'" || (tagName.toLowerCase() === "script" && char === "`")) {
             inQuote = char;
             index++;
             continue;
@@ -468,7 +468,7 @@ function readRawText(htmlText, startIndex, tagName) {
             continue;
         }
 
-        if (tagName === "script" && char === "/" && htmlText[index + 1] === "/") {
+        if (tagName.toLowerCase() === "script" && char === "/" && htmlText[index + 1] === "/") {
             inLineComment = true;
             index += 2;
             continue;
