@@ -1,3 +1,20 @@
+const VOID_ELEMENTS = new Set([
+    "meta",
+    "link",
+    "img",
+    "input",
+    "br",
+    "hr",
+    "source",
+    "base",
+    // "col",
+    // "track",
+    // "wbr",
+    // "area",
+    // "embed",
+    // "param",
+]);
+
 export function tokenize(htmlText) {
     const tokens = [];
     let index = 0;
@@ -60,7 +77,8 @@ function readTag(htmlText, startIndex) {
         token: {
             type: "startTag",
             tagName,
-            isSelfClosing,
+            attributes: [],
+            isSelfClosing: VOID_ELEMENTS.has(tagName)
         },
         nextIndex: actualEnd + 1,
     };
