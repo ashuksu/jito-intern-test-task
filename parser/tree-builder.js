@@ -29,6 +29,10 @@ export function buildTree(tokens) {
                 children: [],
             };
 
+            if (token.isSelfClosing) {
+                elementNode.isSelfClosing = true;
+            }
+
             appendChild(stack, elementNode);
 
             if (!token.isSelfClosing) {
