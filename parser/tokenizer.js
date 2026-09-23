@@ -55,6 +55,28 @@ export function tokenize(htmlText) {
         const tagResult = readTag(htmlText, index);
         tokens.push(tagResult.token);
         index = tagResult.nextIndex;
+
+        if (
+            tagResult.token.type === "startTag" &&
+            (tagResult.token.tagName === "script" ||
+                tagResult.token.tagName === "style") &&
+            !tagResult.token.isSelfClosing
+        ) {
+            const rawTextResult = readRawText(
+                htmlText,
+                index,
+                tagResult.token.tagName
+            );
+
+            if (rawTextResult.value) {
+                tokens.push({
+                    type: "text",
+                    value: rawTextResult.value,
+                });
+            }
+
+            index = rawTextResult.nextIndex;
+        }
     }
 
     return tokens;
@@ -276,5 +298,89 @@ function readDoctype(htmlText, startIndex) {
         token: {
             type: "doctype", value: htmlText.slice(startIndex + 2, endIndex),
         }, nextIndex: endIndex + 1,
+    };
+}
+
+function readRawText(htmlText, startIndex, tagName) {
+    const lowerHtml = htmlText.toLowerCase();
+    const closingTag = `</${tagName}`;
+    let index = startIndex;
+
+    let inQuote = null;
+    let inBlockComment = false;
+    let inLineComment = false;
+
+    while (index < htmlText.length) {
+        if (inQuote) {
+            if (htmlText[index] === "\\") {
+                index += 2;
+                continue;
+            }
+            if (htmlText[index] === inQuote) {
+                inQuote = null;
+            }
+            index++;
+            continue;
+        }
+
+        if (inBlockComment) {
+            if (htmlText[index] === "*" && htmlText[index + 1] === "/") {
+                inBlockComment = false;
+                index += 2;
+                continue;
+            }
+            index++;
+            continue;
+        }
+
+        if (inLineComment) {
+            if (htmlText[index] === "\n") {
+                inLineComment = false;
+            }
+            index++;
+            continue;
+        }
+
+        const char = htmlText[index];
+
+        if (char === '"' || char === "'" || (tagName === "script" && char === "`")) {
+            inQuote = char;
+            index++;
+            continue;
+        }
+
+        if (char === "/" && htmlText[index + 1] === "*") {
+            inBlockComment = true;
+            index += 2;
+            continue;
+        }
+
+        if (tagName === "script" && char === "/" && htmlText[index + 1] === "/") {
+            inLineComment = true;
+            index += 2;
+            continue;
+        }
+
+        if (lowerHtml.startsWith(closingTag, index)) {
+            let testIndex = index + closingTag.length;
+
+            while (testIndex < htmlText.length && /\s/.test(htmlText[testIndex])) {
+                testIndex++;
+            }
+
+            if (htmlText[testIndex] === ">") {
+                return {
+                    value: htmlText.slice(startIndex, index),
+                    nextIndex: index,
+                };
+            }
+        }
+
+        index++;
+    }
+
+    return {
+        value: htmlText.slice(startIndex),
+        nextIndex: htmlText.length,
     };
 }
