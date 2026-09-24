@@ -1,5 +1,18 @@
 # Jito's Software Development Intern "html2json" Test Task
 
+## Project
+
+Fork of [Jito Intern Test Task](https://github.com/jito-dev/jito-intern-test-task).
+
+`html2json` converts HTML into a custom AST JSON without using `DOMParser`.
+The parser tokenizes the input and builds a hierarchical tree.
+
+Supports nested elements, void elements, attributes, comments, whitespace, DOCTYPE, `<script>` and `<style>` content.
+
+Test samples are available in `html_samples/`.
+Live demo: [GitHub Pages](https://ashuksu.github.io/jito-intern-test-task/)
+
+
 ## Task Rationale
 This task is designed to evaluate how well you solve problems without having every detail explicitly provided and to assess the quality of your deliverables. This type of task isn't necessarily reflective of your future work but aims to help us understand your thought process and reasoning in the context of software development.
 
@@ -31,4 +44,4 @@ Before submitting your final results, double or even triple-check everything:
 - Make sure all items are included according to the [Expected Deliverables](#expected-deliverables) section. If any required files or information are missing, we will <b>NOT</b> be able to review your task, and it will be <ins>treated as failed</ins>.
 - Jito’s senior developer will thoroughly review your solution. Based on this review, if deemed appropriate, you may be invited for a technical code review. This will include questions about the code, your understanding, and the reasoning behind your solution choices.
 - The best indicator that you’ve done your best is the feeling of confidence when submitting, knowing that you have thoroughly checked your work and cannot think of anything more to improve.
-- You can view test task template [here](https://jito-dev.github.io/jito-intern-test-task/)
+- You can view test task template [here](https://ashuksu.github.io/jito-intern-test-task/)

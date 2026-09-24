@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Large sample</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+      }
+      .layout {
+        display: grid;
+        gap: 16px;
+      }
+      .card {
+        padding: 16px;
+        border: 1px solid #ccc;
+      }
+      '/</style>'
+    </style>
+    <script>
+      const labels = ["one", "two", "three"];
+      labels.forEach((label) => console.log(label));
+    </script>
+  </head>
+  <body class="page" data-page="dashboard" data-user="123">
+    <header class="site-header">
+      <div class="container">
+        <h1>Dashboard</h1>
+        <nav>
+          <a href="/">Home</a>
+          <a href="/projects">Projects</a>
+          <a href="/settings">Settings</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="card" id="summary" data-section="summary">
+        <h2>Summary</h2>
+        <p>
+          Welcome,
+          <strong>User</strong>.
+        </p>
+        <ul>
+          <li>First item</li>
+          <li>Second item</li>
+          <li>Third item</li>
+        </ul>
+      </section>
+
+      <section class="card" id="form-section" data-section="form">
+        <h2>Form</h2>
+        <form action="/submit" method="post">
+          <label for="name">Name</label>
+          <input id="name" name="name" type="text" placeholder="Your name">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" placeholder="you@example.com">
+          <label>
+            <input name="terms" type="checkbox" checked>
+            Accept terms
+          </label>
+          <button type="submit">Submit</button>
+        </form>
+      </section>
+
+      <!--
+        Content comment
+        with multiple lines
+      -->
+
+      <section class="card" id="media" data-section="media">
+        <h2>Media</h2>
+        <picture>
+          <source srcset="image.webp" type="image/webp">
+          <img src="image.jpg" alt="Example image">
+        </picture>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Footer text</p>
+    </footer>
+  </body>
+</html>

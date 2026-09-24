@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mixed structure</title>
+    <style>
+      body { margin: 0; }
+      .card { padding: 12px; }
+    </style>
+    <script src="app.js" defer></script>
+  </head>
+  <body class="one two" data-page="home" data-version="1">
+    <!--
+      Header comment
+      <header>
+        <h1>Not a real tag</h1>
+      </header>
+    -->
+    <header id="site-header">
+      <nav class="nav">
+        <a href="/">Home</a>
+        <a href="/about" data-id="42">About</a>
+      </nav>
+    </header>
+    <main>
+      <article class="card" data-id="10" data-state="active">
+        <h1>Article title</h1>
+        <p>
+          text start
+          <strong>bold</strong>
+          text middle
+          <em>emphasis</em>
+          text end
+        </p>
+        <img src="article.jpg" alt="Article image">
+        <input type="text" name="search" placeholder="Search">
+        <input type="checkbox" name="terms" checked>
+      </article>
+    </main>
+    <footer>
+      <p>Footer</p>
+    </footer>
+  </body>
+</html>

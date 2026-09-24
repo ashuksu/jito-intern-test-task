@@ -1,0 +1,19 @@
+add this code to the function html2json:
+
+function html2json(htmlText) {
+    const depth = 100000;
+
+    let html = "";
+
+    for (let i = 0; i < depth; i++) {
+    html += "<div>";
+        }
+
+        html += "TEXT";
+
+        for (let i = 0; i < depth; i++) {
+        html += "</div>";
+    }
+
+    return parseHtml(html);
+}
