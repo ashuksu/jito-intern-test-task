@@ -31,12 +31,21 @@ const RAWTEXT_ELEMENTS = new Set([
     "noframes",
 ]);
 
+/** @type {number} Maximum input length in characters before tokenizer throws an error. */
+const MAX_INPUT_LENGTH = 5_000_000; // 5 МБ
+
 /**
  * Tokenizes an HTML string into a flat token stream.
  * @param {string} htmlText - Source HTML text.
  * @returns {Array<Object>} List of parsed tokens.
  */
 export function tokenize(htmlText) {
+    if (htmlText.length > MAX_INPUT_LENGTH) {
+        return [{
+            "type": "text", "value": `Input too large: ${htmlText.length} chars`
+        }]
+    }
+
     const tokens = [];
     let index = 0;
 
